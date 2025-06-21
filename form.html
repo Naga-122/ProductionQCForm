@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Production Control Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, orange, orangered);
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      background-color: white;
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #00000033;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="file"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background-color: orangered;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: darkorange;
+    }
+
+    footer {
+      text-align: center;
+      color: white;
+      margin: 20px 0;
+    }
+
+    #loadingOverlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(255,255,255,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      display: none;
+    }
+
+    #successPage {
+      display: none;
+      text-align: center;
+      color: white;
+    }
+
+    #successPage h2 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    #successPage button {
+      background-color: white;
+      color: orangered;
+      font-weight: bold;
+    }
+
+    .error {
+      color: red;
+      font-size: 13px;
+      margin-top: -8px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="loadingOverlay"><h2>Submitting...</h2></div>
+
+  <div class="container" id="formContainer">
+    <h2>Production Control Form</h2>
+    <form id="qcForm">
+      <label for="serialNumber">Serial Number</label>
+      <input type="text" id="serialNumber" name="serialNumber" maxlength="12" placeholder="Enter or scan serial number" required autocomplete="off"/>
+      <div class="error" id="serialError" style="display:none;">Serial Number must be 12 characters</div>
+
+      <label for="soNumber">S.O Number</label>
+      <input type="text" id="soNumber" name="soNumber" placeholder="Enter S.O Number" required />
+
+      <label for="line">Line</label>
+      <select id="line" name="line" required>
+        <option value="">Select Line</option>
+        <option value="PDX 1-BAY">PDX 1-BAY</option>
+        <option value="PDX 2-BAY">PDX 2-BAY</option>
+        <option value="CRV/PCW">CRV/PCW</option>
+        <option value="FWU">FWU</option>
+        <option value="DSE/IDU">DSE/IDU</option>
+      </select>
+
+      <label>Loading</label>
+      <div class="radio-group">
+        <label><input type="radio" name="loading" value="YES" required> YES</label>
+        <label><input type="radio" name="loading" value="NO" required> NO</label>
+      </div>
+
+      <div id="loadingDateDiv" class="hidden">
+        <label for="loadingDate">Loading Date</label>
+        <input type="date" id="loadingDate" name="loadingDate">
+      </div>
+
+      <div id="loadingDefectDiv" class="hidden">
+        <label for="loadingDefect">Loading Defect</label>
+        <textarea id="loadingDefect" name="loadingDefect"></textarea>
+        <label for="loadingPartNumber">Part Number</label>
+        <input type="text" id="loadingPartNumber" name="loadingPartNumber">
+      </div>
+
+      <div id="leakTestDiv" class="hidden">
+        <label>Leak Test</label>
+        <div class="radio-group">
+          <label><input type="radio" name="leakTest" value="YES"> YES</label>
+          <label><input type="radio" name="leakTest" value="NO"> NO</label>
+        </div>
+      </div>
+
+      <div id="leakDefectDiv" class="hidden">
+        <label for="leakDefect">Leak Test Defect</label>
+        <textarea id="leakDefect" name="leakDefect"></textarea>
+        <label for="leakPartNumber">Part Number</label>
+        <input type="text" id="leakPartNumber" name="leakPartNumber">
+      </div>
+
+      <div id="testingDiv" class="hidden">
+        <label>Testing</label>
+        <div class="radio-group">
+          <label><input type="radio" name="testing" value="YES"> YES</label>
+          <label><input type="radio" name="testing" value="NO"> NO</label>
+        </div>
+      </div>
+
+      <div id="testingDefectDiv" class="hidden">
+        <label for="testingDefect">Testing Defect</label>
+        <textarea id="testingDefect" name="testingDefect"></textarea>
+        <label for="testingPartNumber">Part Number</label>
+        <input type="text" id="testingPartNumber" name="testingPartNumber">
+        <label>Upload Photo</label>
+        <input type="file" name="photo" accept="image/*" capture="environment">
+      </div>
+
+      <div id="finishingDiv" class="hidden">
+        <label>Finishing</label>
+        <div class="radio-group">
+          <label><input type="radio" name="finishing" value="YES"> YES</label>
+          <label><input type="radio" name="finishing" value="NO"> NO</label>
+        </div>
+      </div>
+
+      <div id="finishingDefectDiv" class="hidden">
+        <label for="finishingDefect">Finishing Defect</label>
+        <textarea id="finishingDefect" name="finishingDefect"></textarea>
+        <label for="finishingPartNumber">Part Number</label>
+        <input type="text" id="finishingPartNumber" name="finishingPartNumber">
+      </div>
+
+      <div id="finishingDateDiv" class="hidden">
+        <label for="finishingDate">Finishing Date</label>
+        <input type="date" id="finishingDate" name="finishingDate">
+      </div>
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <div class="container" id="successPage">
+    <h2>Form submitted successfully</h2>
+    <button onclick="window.location.href='success.html'">Submit another response</button>
+  </div>
+
+  <script>
+  const scriptURL = "https://script.google.com/macros/s/AKfycbx93CUQq-P89CKw07v0TH2LAqCaDyNPNHbyRFrJMarsYKbf1rCfzDA87ketubBUoLDm/exec";
+  const urlParams = new URLSearchParams(window.location.search);
+  const serialParam = urlParams.get("serial");
+
+  const serialInput = document.getElementById("serialNumber");
+  const form = document.getElementById("qcForm");
+  const overlay = document.getElementById("loadingOverlay");
+
+  // Pre-fill if serial exists in URL
+  if (serialParam) {
+    serialInput.value = serialParam;
+
+    fetch(`${scriptURL}?serial=${serialParam}`)
+      .then(res => res.json())
+      .then(res => {
+        if (res.found) {
+          const data = res.data;
+          for (const key in data) {
+            const fieldId = key.replace(/\s+/g, '').toLowerCase(); // e.g., "S.O Number" → "sonumber"
+            const field = document.querySelector(`[id="${fieldId}"]`);
+            if (field) field.value = data[key];
+          }
+        }
+      });
+  }
+
+  // Handle form submission
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const payload = {};
+
+    // Extract fields
+    for (let [key, value] of formData.entries()) {
+      const input = document.querySelector(`[name="${key}"]`);
+      if (input && input.type === "radio") {
+        payload[key] = document.querySelector(`input[name="${key}"]:checked`)?.value || "";
+      } else {
+        payload[key] = value;
+      }
+    }
+
+    // Ensure serial number is included and valid
+    payload["Serial Number"] = serialInput.value;
+
+    // Add Finishing Date if Loading=YES and Finishing=YES
+    if (payload.loading === "YES" && payload.finishing === "YES") {
+      payload["Finishing Date"] = new Date().toISOString().split("T")[0];
+    }
+
+    overlay.style.display = "flex";
+
+    try {
+      await fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" }
+      });
+
+      localStorage.setItem("submitted", "true");
+      window.location.href = "success.html";
+    } catch (err) {
+      alert("Error submitting form. Try again.");
+      overlay.style.display = "none";
+    }
+  });
+</script>
+  <footer>Powered by Vertiv</footer>
+</body>
+</html>

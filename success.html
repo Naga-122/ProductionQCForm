@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Form Submitted</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, orange, orangered);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    #countdown {
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+
+    button {
+      padding: 12px 24px;
+      background: white;
+      color: orangered;
+      font-weight: bold;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: orangered;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h2>Form submitted successfully!</h2>
+  <div id="countdown">Redirecting in <span id="timer">10</span> seconds...</div>
+  <button onclick="window.location.href='search.html'">Submit another response</button>
+
+  <script>
+  let seconds = 15;
+  const timerSpan = document.getElementById("timer");
+
+  const countdown = setInterval(() => {
+    seconds--;
+    timerSpan.textContent = seconds;
+    if (seconds <= 0) {
+      clearInterval(countdown);
+      localStorage.removeItem("submitted");
+      window.location.replace("search.html");
+    }
+  }, 1000);
+
+  // Prevent back navigation
+  window.history.replaceState(null, "", window.location.href);
+</script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search Serial Number</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, orange, orangered);
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      background-color: white;
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #00000033;
+      text-align: center;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: orangered;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+    }
+
+    button:hover {
+      background-color: darkorange;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      color: white;
+      margin: 30px 0 10px;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    video {
+      width: 100%;
+      max-height: 250px;
+      margin-top: 10px;
+      border-radius: 8px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Search Serial Number</h2>
+    <label for="serialInput">Enter or Scan Serial Number</label>
+    <input type="text" id="serialInput" placeholder="Enter Serial Number" maxlength="12" required autocomplete="off">
+    <br>
+    <button onclick="checkSerial()">Search</button>
+    <button onclick="startScan()">📷 Scan from Camera</button>
+    
+    <video id="preview"></video>
+
+    <div id="result"></div>
+  </div>
+
+  <footer>Powered by Vertiv</footer>
+
+  <!-- ZXing Scanner Library -->
+  <script src="https://unpkg.com/@zxing/library@latest"></script>
+  <script>
+    const codeReader = new ZXing.BrowserBarcodeReader();
+    const videoElement = document.getElementById('preview');
+
+    async function startScan() {
+      document.getElementById('result').innerText = '';
+      videoElement.style.display = 'block';
+      try {
+        const devices = await ZXing.BrowserBarcodeReader.listVideoInputDevices();
+        const selectedDeviceId = devices[0]?.deviceId;
+        if (!selectedDeviceId) {
+          document.getElementById('result').innerHTML = "<span class='error'>No camera found</span>";
+          return;
+        }
+
+        codeReader.decodeFromVideoDevice(selectedDeviceId, 'preview', (result, err) => {
+          if (result) {
+            document.getElementById('serialInput').value = result.text;
+            codeReader.reset();
+            videoElement.style.display = 'none';
+            checkSerial(); // auto trigger search
+          }
+        });
+      } catch (err) {
+        console.error(err);
+        document.getElementById('result').innerHTML = "<span class='error'>Camera access error</span>";
+      }
+    }
+
+    async function checkSerial() {
+      const serial = document.getElementById("serialInput").value.trim();
+      const resultDiv = document.getElementById("result");
+      if (serial.length !== 12) {
+        resultDiv.innerHTML = "<span class='error'>❌ Serial number must be exactly 12 characters.</span>";
+        return;
+      }
+
+      resultDiv.textContent = "Checking...";
+
+      try {
+        const response = await fetch(`https://script.google.com/macros/s/AKfycbx93CUQq-P89CKw07v0TH2LAqCaDyNPNHbyRFrJMarsYKbf1rCfzDA87ketubBUoLDm/exec?serial=${serial}`);
+
+        const data = await response.json();
+
+        if (data.found) {
+          resultDiv.innerHTML = `✅ <span style="color: green;">Data Found</span><br><br>
+            <button onclick="location.href='index.html?serial=${serial}'">Continue with Pre-filled Form</button>`;
+        } else {
+          resultDiv.innerHTML = `❌ <span style="color: red;">Data Not Found</span><br><br>
+            <button onclick="location.href='index.html?serial=${serial}'">Start New Form</button>`;
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<span class='error'>Error checking serial number. Please try again.</span>`;
+      }
+    }
+  </script>
+</body>
+</html>
