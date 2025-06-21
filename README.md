@@ -103,5 +103,5 @@ You can:
 
 ## 🤝 Author
 
-Developed by [Your Name] using best practices in Apps Script and frontend JS  
-🔗 GitHub: [github.com/yourusername](https://github.com/yourusername)
+Developed by naga using best practices in Apps Script and frontend JS  
+
